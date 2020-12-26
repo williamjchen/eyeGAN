@@ -1,0 +1,10 @@
+images/Bulk-Bing-Image-downloader/
+wandb/
+images/
+venv/
+training_checkpoints/
+training_images_bw_1/
+training_images_bw_2/
+training_images_bw_3/
+dcgan_bw_1.gif
+.idea/
