@@ -1,10 +1,20 @@
 images/Bulk-Bing-Image-downloader/
 wandb/
-images/
+images/downloads
+images/eye
+images/eyes
+images/eyes2
+images/eyes3
+images/eyes3 (another copy)
+images/eyes3 (copy)
+images/eyes4
+images/final
+images/final (copy)
 venv/
 training_checkpoints/
+training_checkpoints_c/
+training_checkpoints_c_2
 training_images_bw_1/
 training_images_bw_2/
 training_images_bw_3/
-dcgan_bw_1.gif
 .idea/

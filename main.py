@@ -4,21 +4,18 @@ import numpy as np
 from PIL import Image
 from tensorflow.keras import layers
 import time
-import imageio
 import os
-import glob
-from tensorflow.keras.preprocessing.image import ImageDataGenerator, img_to_array
-import wandb
-#wandb.init(project="eyegan")
+from tensorflow.keras.preprocessing.image import img_to_array
 
-# print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
+
+physical_devices = tf.config.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 
 # IMAGE PROCESSING
 def load_image(path):
-    # img = Image.open(path).convert('RGB')
-    img = Image.open(path).convert('L')
-    img = img.resize((128,128))
+    img = Image.open(path).convert('RGB')
+    img = img.resize((128, 128))
     img = img_to_array(img)
     img = img.astype('float32')
     img = (img - 127.5)/127.5
@@ -37,11 +34,12 @@ def generate_and_save_images(model, epoch, test_input):
 
     for i in range(predictions.shape[0]):
         plt.subplot(4, 4, i + 1)
-        plt.imshow(predictions[i, :, :, 0] * 127.5 + 127.5, cmap='gray')
+        plt.imshow((predictions[i, :, :, :] * 127.5 + 127.5) / 255.0)
         plt.axis('off')
 
-    plt.savefig('./training_images_bw_4/image_at_epoch_{:04d}.png'.format(epoch))
-    plt.show()
+    plt.savefig('./training_images/image_at_epoch_{:04d}.png'.format(epoch))
+    # plt.show()
+    plt.close()
 
 
 # MODEL
@@ -66,8 +64,8 @@ def make_generator():
     model.add(layers.BatchNormalization())
     model.add(layers.LeakyReLU())
 
-    model.add(layers.Conv2DTranspose(1, (5, 5), strides=(2, 2), padding="same", use_bias=False, activation="tanh"))
-    assert model.output_shape == (None, 128, 128, 1)
+    model.add(layers.Conv2DTranspose(3, (5, 5), strides=(2, 2), padding="same", use_bias=False, activation="tanh"))
+    assert model.output_shape == (None, 128, 128, 3)
 
     return model
 
@@ -75,7 +73,7 @@ def make_generator():
 def make_discriminator():
     model = tf.keras.Sequential()
 
-    model.add(layers.Conv2D(128, (5, 5), strides=(2, 2), padding="same", input_shape=[128, 128, 1]))
+    model.add(layers.Conv2D(128, (5, 5), strides=(2, 2), padding="same", input_shape=[128, 128, 3]))
     model.add(layers.LeakyReLU())
     model.add(layers.Dropout(0.5))
 
@@ -121,8 +119,6 @@ def train_step(images):
         gen_loss = generator_loss(fake_output)
         discrim_loss = discriminator_loss(real_output, fake_output)
 
-    #wandb.log({"generator_loss": gen_loss, "discriminator_loss": discrim_loss})
-
     gradient_of_gen = gen_tape.gradient(gen_loss, generator.trainable_variables)
     gradients_of_discrim = disc_tape.gradient(discrim_loss, discriminator.trainable_variables)
 
@@ -147,8 +143,8 @@ def train(dataset, epochs):
     generate_and_save_images(generator, epochs, seed)
 
 
-BATCH_SIZE = 128
-EPOCHS = 750
+BATCH_SIZE = 64
+EPOCHS = 400
 IMAGE_DIRECTORY = 'images/eyes (copy)/'
 num_examples_to_generate = 16
 noise_dim = 100
@@ -175,7 +171,7 @@ discriminator_optimizer = tf.keras.optimizers.Adam(1e-4)
 cross_entropy = tf.keras.losses.BinaryCrossentropy(from_logits=True)
 
 
-checkpoint_dir = './training_checkpoints_4'
+checkpoint_dir = './training_checkpoints'
 checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
 checkpoint = tf.train.Checkpoint(generator_optimizer=generator_optimizer,
                                  discriminator_optimizer=discriminator_optimizer,
@@ -183,5 +179,6 @@ checkpoint = tf.train.Checkpoint(generator_optimizer=generator_optimizer,
                                  discriminator=discriminator)
 
 begin = time.time()
+
+checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
 train(ds, EPOCHS)
-# checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
