@@ -7,7 +7,11 @@ eye dataset is the eyes (copy) folder. Around 1000 human and a few non-human eye
 
 Run main.py to begin training.
 
-
+## Data
+Using the images from this [simliar project](https://github.com/aaaa-trsh/Eye-DCGAN/)
+and [bulk bing image downloader](https://github.com/ostrolucky/Bulk-Bing-Image-downloader),
+I was able to amass around 1000 images of eyes. With tensorflow I flipped each of them horizontally, to
+produce a datset with ~2000 images.
 ## Built With
 Tensorflow
 
