@@ -26,3 +26,6 @@ I made an error naming the files. The epoch is incorrect.
 ![Gif](dcgan_c_p1.gif)
 ![Gif](dcgan_c_p2.gif)
 ![Gif](dcgan_c_p3.gif)
+
+## Reflection
+The results of the experiment were arguablly good. The generated images are unquestionably eyes, and have resolution mimicing real eyes. Unfortunately, there are still many artifacts in the images, which are especially notable in the coloured ones. An increase of training data would likely increase image quality, but that proved difficult during the process. Many eyes that appear on a internet search are drawings or repeated. Future work should focus on increasing data size through other means like extracting eyes from larger images of people through object detection models like YOLO.
